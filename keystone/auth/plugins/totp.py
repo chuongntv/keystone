@@ -24,19 +24,18 @@ same secret key will be equal.
 
 import base64
 
+import six
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.twofactor import totp as crypto_totp
 from oslo_log import log
 from oslo_utils import timeutils
-import six
 
+from keystone import exception
 from keystone.auth import plugins
 from keystone.auth.plugins import base
 from keystone.common import dependency
-from keystone import exception
 from keystone.i18n import _
-
 
 METHOD_NAME = 'totp'
 
