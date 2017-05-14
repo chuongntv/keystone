@@ -70,6 +70,7 @@ class TOTP(base.AuthMethodHandler):
 
     def authenticate(self, request, auth_payload, auth_context):
         """Try to authenticate using TOTP."""
+        response_data = {}
         user_info = plugins.TOTPUserInfo.create(auth_payload, METHOD_NAME)
         auth_passcode = auth_payload.get('user').get('passcode')
 
@@ -97,4 +98,7 @@ class TOTP(base.AuthMethodHandler):
                 msg = _('Invalid username or TOTP passcode')
                 raise exception.Unauthorized(msg)
 
-        auth_context['user_id'] = user_info.user_id
+        response_data['user_id'] = user_info.user_id
+
+        return base.AuthHandlerResponse(status=True, response_body=None,
+                                        response_data=response_data)
