@@ -78,8 +78,6 @@ class TOTP(base.AuthMethodHandler):
             user_info.user_id, type='totp')
 
         valid_passcode = False
-        msg = _('Invalid username or TOTP passcode')
-        raise exception.Unauthorized(msg)
 
         if not credentials:
             for credential in credentials:
