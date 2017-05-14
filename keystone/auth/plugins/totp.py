@@ -79,7 +79,7 @@ class TOTP(base.AuthMethodHandler):
 
         valid_passcode = False
 
-        if not credentials:
+        if credentials:
             for credential in credentials:
                 try:
                     generated_passcode = _generate_totp_passcode(
