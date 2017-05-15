@@ -66,7 +66,6 @@ def _generate_totp_passcode(secret):
 
 @dependency.requires('credential_api')
 class TOTP(base.AuthMethodHandler):
-
     def authenticate(self, request, auth_payload, auth_context):
         """Try to authenticate using TOTP."""
         response_data = {}
@@ -82,6 +81,7 @@ class TOTP(base.AuthMethodHandler):
             response_data['user_id'] = user_info.user_id
             return base.AuthHandlerResponse(status=True, response_body=None,
                                             response_data=response_data)
+
         for credential in credentials:
             try:
                 generated_passcode = _generate_totp_passcode(
