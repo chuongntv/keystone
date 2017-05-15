@@ -77,12 +77,6 @@ class TOTP(base.AuthMethodHandler):
 
         valid_passcode = False
 
-        if not credentials:
-            response_data['user_id'] = user_info.user_id
-
-            return base.AuthHandlerResponse(status=True, response_body=None,
-                                            response_data=response_data)
-
         for credential in credentials:
             try:
                 generated_passcode = _generate_totp_passcode(
