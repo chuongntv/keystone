@@ -66,9 +66,9 @@ def _generate_totp_passcode(secret):
 
 @dependency.requires('credential_api')
 class TOTP(base.AuthMethodHandler):
+
     def authenticate(self, request, auth_payload, auth_context):
         """Try to authenticate using TOTP."""
-        response_data = {}
         user_info = plugins.TOTPUserInfo.create(auth_payload, METHOD_NAME)
         auth_passcode = auth_payload.get('user').get('passcode')
 
@@ -76,32 +76,24 @@ class TOTP(base.AuthMethodHandler):
             user_info.user_id, type='totp')
 
         valid_passcode = False
+        if credentials:
+            for credential in credentials:
+                try:
+                    generated_passcode = _generate_totp_passcode(
+                        credential['blob'])
+                    if auth_passcode == generated_passcode:
+                        valid_passcode = True
+                        break
+                except (ValueError, KeyError):
+                    LOG.debug('No TOTP match; credential id: %s, user_id: %s',
+                              credential['id'], user_info.user_id)
+                except (TypeError):
+                    LOG.debug('Base32 decode failed for TOTP credential %s',
+                              credential['id'])
 
-        response_data['user_id'] = user_info.user_id
+            if not valid_passcode:
+                # authentication failed because of invalid username or passcode
+                msg = _('Invalid username or TOTP passcode')
+                raise exception.Unauthorized(msg)
 
-        return base.AuthHandlerResponse(status=True, response_body=None,
-                                        response_data=response_data)
-
-        for credential in credentials:
-            try:
-                generated_passcode = _generate_totp_passcode(
-                    credential['blob'])
-                if auth_passcode == generated_passcode:
-                    valid_passcode = True
-                    break
-            except (ValueError, KeyError):
-                LOG.debug('No TOTP match; credential id: %s, user_id: %s',
-                          credential['id'], user_info.user_id)
-            except (TypeError):
-                LOG.debug('Base32 decode failed for TOTP credential %s',
-                          credential['id'])
-
-        if not valid_passcode:
-            # authentication failed because of invalid username or passcode
-            msg = _('Invalid username or TOTP passcode')
-            raise exception.Unauthorized(msg)
-
-        response_data['user_id'] = user_info.user_id
-
-        return base.AuthHandlerResponse(status=True, response_body=None,
-                                        response_data=response_data)
+        auth_context['user_id'] = user_info.user_id
