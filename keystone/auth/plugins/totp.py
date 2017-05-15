@@ -79,6 +79,7 @@ class TOTP(base.AuthMethodHandler):
 
         if not credentials:
             response_data['user_id'] = user_info.user_id
+
             return base.AuthHandlerResponse(status=True, response_body=None,
                                             response_data=response_data)
 
